@@ -23,7 +23,7 @@ export const STATUS_CONFIG = {
   },
   [TEST_STATE.WAITING_FOR_AI]: {
     text: 'AI is speaking...',
-    className: 'bg-purple-100 text-purple-800 border-purple-200',
+    className: 'bg-blue-100 text-blue-800 border-blue-200',
     icon: 'Bot'
   },
   [TEST_STATE.READY_TO_LISTEN]: {

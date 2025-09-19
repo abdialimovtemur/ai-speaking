@@ -23,15 +23,15 @@ const StatusIndicator = ({ testState, timer }) => {
   const formatTime = (seconds) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className={`flex items-center p-4 rounded-lg border ${statusInfo.className} mb-6`}>
-      <div className="mr-3">
+    <div className={`flex items-center p-6 rounded-2xl border-2 shadow-lg backdrop-blur-sm ${statusInfo.className} mb-6 relative z-10`}>
+      <div className="mr-4 p-2 rounded-full bg-white/50">
         <IconComponent iconName={statusInfo.icon} />
       </div>
       <div>
-        <p className="font-medium">{statusInfo.text}</p>
+        <p className="font-semibold text-lg">{statusInfo.text}</p>
         {timer !== null && (
-          <p className="text-sm mt-1 flex items-center">
-            <Clock className="w-4 h-4 mr-1" /> {formatTime(timer)}
+          <p className="text-sm mt-2 flex items-center font-medium">
+            <Clock className="w-4 h-4 mr-2" /> {formatTime(timer)}
           </p>
         )}
       </div>

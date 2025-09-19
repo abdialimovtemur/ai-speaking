@@ -6,7 +6,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
     return (
       <button
         onClick={onStartTest}
-        className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center"
+        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
       >
         <Mic className="w-5 h-5 mr-2" /> Start IELTS Test
       </button>
@@ -17,7 +17,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
     return (
       <button
         disabled
-        className="bg-purple-400 text-white font-semibold py-3 px-6 rounded-lg flex items-center"
+        className="bg-gradient-to-r from-blue-400 to-indigo-400 text-white font-semibold py-4 px-8 rounded-xl shadow-lg flex items-center opacity-75"
       >
         <Clock className="w-5 h-5 mr-2 animate-pulse" /> Connecting...
       </button>
@@ -28,7 +28,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
     return (
       <button
         onClick={onRetry}
-        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center"
+        className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
       >
         <AlertCircle className="w-5 h-5 mr-2" /> Try Again
       </button>
@@ -39,7 +39,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
     return (
       <button
         onClick={onSkipTimer}
-        className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center"
+        className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
       >
         I'm Ready
       </button>
@@ -50,7 +50,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
     return (
       <button
         onClick={onFinishPart2}
-        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center"
+        className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
       >
         <MicOff className="w-5 h-5 mr-2" /> I'm Finished
       </button>

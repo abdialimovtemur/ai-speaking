@@ -45,7 +45,7 @@ export const useIELTSTest = () => {
   const handleStartTest = useCallback(() => {
     setTestState(TEST_STATE.CONNECTING);
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const backendUrl = '21fcd9672460.ngrok-free.app';
+    const backendUrl = '36f1488d5fae.ngrok-free.app';
     const wsURL = `${wsScheme}://${backendUrl}/ws/speech/`;
     console.log("FRONTEND LOG: Connecting to WebSocket:", wsURL);
     const ws = new WebSocket(wsURL);
@@ -176,6 +176,7 @@ export const useIELTSTest = () => {
     feedback,
     finalEvaluation,
     timer,
+    isStreaming: isStreaming.current,
     handleStartTest,
     handleSkipTimer,
     handleFinishPart2,

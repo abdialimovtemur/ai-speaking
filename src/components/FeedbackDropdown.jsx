@@ -37,31 +37,33 @@ const FeedbackDropdown = ({ originalText, enhancements }) => {
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden mb-4">
+    <div className="border border-gray-200/50 rounded-2xl overflow-hidden mb-4 bg-white/60 backdrop-blur-sm shadow-lg">
       <div
-        className={`flex justify-between items-center p-4 cursor-pointer bg-gray-50 hover:bg-gray-100 ${
-          isOpen ? 'border-b' : ''
+        className={`flex justify-between items-center p-5 cursor-pointer bg-gradient-to-r from-gray-50/80 to-blue-50/80 hover:from-gray-100/80 hover:to-blue-100/80 transition-all duration-300 ${
+          isOpen ? 'border-b border-gray-200/50' : ''
         }`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center min-w-0 flex-1">
-          <BookOpen className="w-4 h-4 mr-2 text-purple-600 flex-shrink-0" />
-          <span className="font-medium truncate">Feedback for: "{originalText}"</span>
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-2 rounded-lg mr-3 flex-shrink-0">
+            <BookOpen className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold text-gray-800 truncate">Feedback for: "{originalText}"</span>
         </div>
-        <span className={`transform transition-transform flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}>
-          &#9660;
-        </span>
+        <div className={`transform transition-transform duration-300 flex-shrink-0 ml-2 p-1 rounded-full bg-white/50 ${isOpen ? 'rotate-180' : ''}`}>
+          <span className="text-gray-600">&#9660;</span>
+        </div>
       </div>
       
       {isOpen && (
-        <div className="p-4 bg-white">
+        <div className="p-6 bg-white/80 backdrop-blur-sm">
           <div className="flex space-x-2 mb-4">
             {['Band 7', 'Band 8', 'Band 9'].map((band) => (
               <button
                 key={band}
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
                   activeBand === band
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
                 onClick={(e) => {
