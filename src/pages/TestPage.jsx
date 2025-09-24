@@ -17,10 +17,12 @@ const TestPage = () => {
     finalEvaluation,
     timer,
     isStreaming,
+    isMuted,
     handleStartTest,
     handleSkipTimer,
     handleFinishPart2,
-    handleRetry
+    handleRetry,
+    handleToggleMute
   } = useIELTSTest();
 
   return (
@@ -32,6 +34,8 @@ const TestPage = () => {
           onSkipTimer={handleSkipTimer}
           onFinishPart2={handleFinishPart2}
           onRetry={handleRetry}
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
         />
       </div>
 
@@ -77,7 +81,7 @@ const TestPage = () => {
           </div>
         </div>
       ) : (
-        // Single column layout for normal test flow
+        // Two-column layout for normal test flow
         <div className="space-y-6">
           {/* Show TimerDisplay for preparation and speaking phases */}
           {(testState === 'PREP_TIME' || testState === 'SPEAK_TIME') && (
@@ -88,26 +92,36 @@ const TestPage = () => {
           {(testState !== 'WAITING_FOR_AI' && testState !== 'READY_TO_LISTEN' && testState !== 'SPEAK_TIME' && testState !== 'PREP_TIME') && (
             <StatusIndicator testState={testState} timer={timer} />
           )}
-          <VoiceActivityIndicator testState={testState} isStreaming={isStreaming} />
-          {log.length > 0 && <ConversationLog logEntries={log} />}
+          <VoiceActivityIndicator testState={testState} isStreaming={isStreaming} isMuted={isMuted} />
           
-          {feedback.length > 0 && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <Award className="w-5 h-5 mr-2 text-blue-600" />
-                Real-time Feedback
-              </h2>
-              <div className="space-y-4">
-                {feedback.map(fb => (
-                  <FeedbackDropdown 
-                    key={fb.key} 
-                    originalText={fb.original_text || fb.originalText || 'Your speech'} 
-                    enhancements={fb.enhancements} 
-                  />
-                ))}
-              </div>
+          {/* Two-column layout: Conversation on left, Feedback on right */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Conversation Log - takes 2/3 of the width */}
+            <div className="lg:col-span-2">
+              {log.length > 0 && <ConversationLog logEntries={log} />}
             </div>
-          )}
+            
+            {/* Real-time Feedback - takes 1/3 of the width on the right */}
+            <div className="lg:col-span-1">
+              {feedback.length > 0 && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sticky top-4">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Award className="w-4 h-4 mr-2 text-blue-600" />
+                    Real-time Feedback
+                  </h2>
+                  <div className="space-y-4">
+                    {feedback.map(fb => (
+                      <FeedbackDropdown 
+                        key={fb.key} 
+                        originalText={fb.original_text || fb.originalText || 'Your speech'} 
+                        enhancements={fb.enhancements} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </main>

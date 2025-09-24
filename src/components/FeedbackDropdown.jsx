@@ -2,7 +2,7 @@ import { BookOpen, Play, Square } from 'lucide-react';
 import { useState } from 'react';
 
 const FeedbackDropdown = ({ originalText, enhancements }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // Avtomatik ochiq
   const [activeBand, setActiveBand] = useState('Band 7');
 
   const renderDiff = (diffData) => {

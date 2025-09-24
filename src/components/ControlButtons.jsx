@@ -1,7 +1,7 @@
-import { Mic, Clock, MicOff, AlertCircle } from 'lucide-react';
+import { Mic, Clock, MicOff, AlertCircle, VolumeX, Volume2 } from 'lucide-react';
 import { TEST_STATE } from '../constants/testStates';
 
-const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, onRetry }) => {
+const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, onRetry, isMuted, onToggleMute }) => {
   if (testState === TEST_STATE.INITIAL) {
     return (
       <button
@@ -48,11 +48,41 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
 
   if (testState === TEST_STATE.SPEAK_TIME) {
     return (
+      <div className="flex gap-4 items-center">
+        <button
+          onClick={onToggleMute}
+          className={`font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105 ${
+            isMuted 
+              ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white' 
+              : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white'
+          }`}
+        >
+          {isMuted ? <VolumeX className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
+          {isMuted ? 'Unmute' : 'Mute'}
+        </button>
+        <button
+          onClick={onFinishPart2}
+          className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
+        >
+          <MicOff className="w-5 h-5 mr-2" /> I'm Finished
+        </button>
+      </div>
+    );
+  }
+
+  // Show mute button only when user is speaking (not when AI is speaking)
+  if (testState === TEST_STATE.READY_TO_LISTEN || testState === TEST_STATE.PROCESSING) {
+    return (
       <button
-        onClick={onFinishPart2}
-        className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
+        onClick={onToggleMute}
+        className={`font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105 ${
+          isMuted 
+            ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white' 
+            : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white'
+        }`}
       >
-        <MicOff className="w-5 h-5 mr-2" /> I'm Finished
+        {isMuted ? <VolumeX className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
+        {isMuted ? 'Unmute' : 'Mute'}
       </button>
     );
   }
