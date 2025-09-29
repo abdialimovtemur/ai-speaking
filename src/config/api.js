@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://9d65191b4d76.ngrok-free.app';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://improvely.ai/speaking/';
 
 // API Endpoints
 export const API_ENDPOINTS = {

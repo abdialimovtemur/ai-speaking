@@ -132,22 +132,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Demo Info */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0">
-              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">i</span>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-blue-900 mb-1">Demo Mode</h3>
-              <p className="text-sm text-blue-700">
-                For demo purposes, any valid phone number will work. Use any 6-digit code for verification.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
