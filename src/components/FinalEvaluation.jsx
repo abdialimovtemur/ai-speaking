@@ -1,4 +1,4 @@
-import { CheckCircle, AlertCircle, Award } from 'lucide-react';
+import { CheckCircle, AlertCircle, Award, RotateCcw } from 'lucide-react';
 
 const EvaluationCard = ({ title, score, strengths, improvements }) => (
   <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-2xl p-5 shadow-sm border border-white/50">
@@ -37,8 +37,14 @@ const EvaluationCard = ({ title, score, strengths, improvements }) => (
   </div>
 );
 
-const FinalEvaluation = ({ data }) => {
+const FinalEvaluation = ({ data, onRestartTest }) => {
   if (!data) return null;
+
+  const handleRestartTest = () => {
+    if (onRestartTest) {
+      onRestartTest();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -68,6 +74,17 @@ const FinalEvaluation = ({ data }) => {
           </div>
         </div>
       )}
+      
+      {/* Restart Test Button */}
+      <div className="flex justify-center pt-4">
+        <button
+          onClick={handleRestartTest}
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-6 rounded-xl shadow-md transition-all duration-200 transform hover:scale-105 active:scale-95"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Restart Test
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
-import { Mic, Bot } from 'lucide-react';
+import { Mic, Bot, MicOff } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
+const VoiceActivityIndicator = ({ testState, isStreaming, isMuted, onToggleMute }) => {
   const [audioLevel, setAudioLevel] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const audioContextRef = useRef(null);
@@ -21,8 +21,8 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
 
   // Real voice detection for user
   useEffect(() => {
-    if (!isUserSpeaking) {
-      // Clean up if not speaking
+    if (!isUserSpeaking || isMuted) {
+      // Clean up if not speaking or muted
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
@@ -93,7 +93,7 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
         const interval = setInterval(() => {
           setAudioLevel(Math.random() * 80 + 20);
           setIsActive(true);
-        }, 50); // Faster interval for user (was 100ms)
+        }, 50);
         
         return () => clearInterval(interval);
       }
@@ -113,9 +113,9 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
         audioContextRef.current.close();
       }
     };
-  }, [isUserSpeaking]);
+  }, [isUserSpeaking, isMuted]);
 
-  // AI speaking animation - same style as user but with different color
+  // AI speaking animation
   useEffect(() => {
     if (!isAISpeaking) {
       setAudioLevel(0);
@@ -123,15 +123,13 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
       return;
     }
 
-    // AI animates with random values like user but consistent
     let lastValue = 30;
     const interval = setInterval(() => {
-      // Create more natural looking animation with smoother transitions
       const newValue = Math.min(100, Math.max(20, lastValue + (Math.random() * 40 - 20)));
       lastValue = newValue;
       setAudioLevel(newValue);
       setIsActive(true);
-    }, 80); // Keep AI at normal speed
+    }, 80);
     
     return () => {
       clearInterval(interval);
@@ -142,41 +140,38 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
   if (!shouldShow) return null;
 
   // Determine colors based on who is speaking and mute state
-  const primaryColor = (showUserMic && isMuted) ? 'red' : (showUserMic ? 'green' : 'blue');
-  const icon = showUserMic ? <Mic className="w-10 h-10" /> : <Bot className="w-10 h-10" />;
+  const primaryColor = isMuted ? 'red' : (showUserMic ? 'green' : 'blue');
+  const icon = showUserMic ? (isMuted ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />) : <Bot className="w-10 h-10" />;
 
-  // Calculate bar heights - Enhanced for user, normal for AI
+  // Calculate bar heights
   const getBarHeight = (index, level) => {
     const baseHeight = 10;
-    const maxHeight = showUserMic ? 50 + (index * 15) : 35 + (index * 12); // Taller bars for user
-    const variation = (index % 2 === 0 ? 0.8 : 1.2); // Create alternating pattern
+    const maxHeight = showUserMic ? 50 + (index * 15) : 35 + (index * 12);
+    const variation = (index % 2 === 0 ? 0.8 : 1.2);
     
-    if (!isActive) return baseHeight;
+    if (!isActive || isMuted) return baseHeight;
     
-    // Calculate height based on audio level with variation for each bar
-    const multiplier = showUserMic ? 1.5 : 1; // More dramatic for user
+    const multiplier = showUserMic ? 1.5 : 1;
     return baseHeight + (level / 100) * maxHeight * variation * multiplier;
   };
 
   return (
     <div className="flex justify-center items-center mb-16">
       <div className="relative">
-        {/* Voice-responsive bars - only show when actively speaking */}
-        {isActive && (
+        {/* Voice-responsive bars - don't show when muted */}
+        {isActive && !isMuted && (
           <div className="absolute inset-0 flex items-center justify-center">
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
                 className={`absolute w-2 rounded-full ${
                   showUserMic 
-                    ? 'transition-all duration-50' // Faster transition for user
-                    : 'transition-all duration-100' // Normal for AI
+                    ? 'transition-all duration-50'
+                    : 'transition-all duration-100'
                 } ${
-                  (showUserMic && isMuted)
-                    ? 'bg-gradient-to-t from-red-400 to-red-600'
-                    : showUserMic 
-                      ? 'bg-gradient-to-t from-green-400 to-green-600' 
-                      : 'bg-gradient-to-t from-blue-400 to-blue-600'
+                  showUserMic 
+                    ? 'bg-gradient-to-t from-green-400 to-green-600' 
+                    : 'bg-gradient-to-t from-blue-400 to-blue-600'
                 }`}
                 style={{
                   height: `${getBarHeight(i, audioLevel)}px`,
@@ -188,81 +183,110 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
           </div>
         )}
 
-        {/* Main icon container - enhanced for user, opaque for AI */}
+        {/* Main icon container */}
         <div className={`relative w-32 h-32 rounded-full flex items-center justify-center z-20 ${
           showUserMic 
-            ? 'transition-all duration-100' // Faster transition for user
-            : 'transition-all duration-300' // Normal for AI
+            ? 'transition-all duration-100'
+            : 'transition-all duration-300'
         } ${
-          (showUserMic && isMuted)
-            ? 'bg-gradient-to-br from-red-100 to-red-300 shadow-xl shadow-red-300/60 transform scale-110' // Red for muted user
+          isMuted
+            ? 'bg-gradient-to-br from-red-100 to-red-300 shadow-xl shadow-red-300/60 transform scale-110'
             : isActive 
               ? showUserMic
-                ? 'bg-gradient-to-br from-green-100 to-green-300 shadow-xl shadow-green-300/60 transform scale-110' // More dramatic for user
-                : 'bg-gradient-to-br from-blue-100 to-blue-200 shadow-lg shadow-blue-200/60' // Opaque for AI
+                ? 'bg-gradient-to-br from-green-100 to-green-300 shadow-xl shadow-green-300/60 transform scale-110'
+                : 'bg-gradient-to-br from-blue-100 to-blue-200 shadow-lg shadow-blue-200/60'
               : showUserMic
                 ? 'bg-gradient-to-br from-green-50 to-green-100 shadow-md shadow-green-100/30'
-                : 'bg-gradient-to-br from-blue-50 to-blue-100 shadow-md shadow-blue-100/30' // Opaque for AI
+                : 'bg-gradient-to-br from-blue-50 to-blue-100 shadow-md shadow-blue-100/30'
         }`}>
-          {/* Inner glow effect - pulses when active */}
+          {/* Inner glow effect */}
           <div className={`absolute inset-4 rounded-full ${
             showUserMic 
-              ? 'transition-all duration-100' // Faster transition for user
-              : 'transition-all duration-300' // Normal for AI
+              ? 'transition-all duration-100'
+              : 'transition-all duration-300'
           } ${
-            (showUserMic && isMuted)
-              ? 'bg-gradient-to-br from-red-200 to-red-300 animate-pulse' // Red for muted user
+            isMuted
+              ? 'bg-gradient-to-br from-red-200 to-red-300'
               : isActive 
                 ? showUserMic
-                  ? 'bg-gradient-to-br from-green-200 to-green-300 animate-pulse'
-                  : 'bg-gradient-to-br from-blue-200 to-blue-300 animate-pulse' // Opaque for AI
+                  ? 'bg-gradient-to-br from-green-200 to-green-300'
+                  : 'bg-gradient-to-br from-blue-200 to-blue-300'
                 : showUserMic
                   ? 'bg-gradient-to-br from-green-100 to-green-200'
-                  : 'bg-gradient-to-br from-blue-100 to-blue-200' // Opaque for AI
+                  : 'bg-gradient-to-br from-blue-100 to-blue-200'
           }`}></div>
           
-          {/* Icon */}
-          <div className={`relative z-10 ${
-            showUserMic 
-              ? 'transition-colors duration-100' // Faster transition for user
-              : 'transition-colors duration-300' // Normal for AI
-          } ${
-            isActive ? `text-${primaryColor}-700` : `text-${primaryColor}-500`
-          }`}>
-            {icon}
+          {/* Icon with mute line when muted */}
+          <div className="relative z-10">
+            <div className={`${
+              showUserMic 
+                ? 'transition-colors duration-100'
+                : 'transition-colors duration-300'
+            } ${
+              isMuted 
+                ? 'text-red-700' 
+                : (isActive ? `text-${primaryColor}-700` : `text-${primaryColor}-500`)
+            }`}>
+              {icon}
+            </div>
+            
+            {/* Mute line overlay - only for user mic when muted */}
+            {showUserMic && isMuted && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-1 bg-red-700 rounded-full transform rotate-45 absolute"></div>
+              </div>
+            )}
           </div>
+
+          {/* Mute toggle button - only for user mic */}
+          {showUserMic && (
+            <button
+              onClick={onToggleMute}
+              className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center z-30 transition-all duration-200 ${
+                isMuted
+                  ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/50'
+                  : 'bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/50'
+              }`}
+            >
+              {isMuted ? (
+                <MicOff className="w-4 h-4 text-white" />
+              ) : (
+                <Mic className="w-4 h-4 text-white" />
+              )}
+            </button>
+          )}
         </div>
 
-        {/* Outer ring - expands when active */}
+        {/* Outer ring */}
         <div className={`absolute inset-0 rounded-full border-4 ${
           showUserMic 
-            ? 'transition-all duration-100' // Faster transition for user
-            : 'transition-all duration-300' // Normal for AI
+            ? 'transition-all duration-100'
+            : 'transition-all duration-300'
         } ${
-          (showUserMic && isMuted)
+          isMuted
             ? 'border-red-300'
             : `border-${primaryColor}-300`
         }`} style={{
-          transform: `scale(${isActive ? 1.15 + (audioLevel / 400) : 1})`,
-          opacity: isActive ? 0.7 : 0.3,
+          transform: `scale(${isActive && !isMuted ? 1.15 + (audioLevel / 400) : 1})`,
+          opacity: isActive && !isMuted ? 0.7 : 0.3,
         }}></div>
 
-         {/* Status text */}
-         <div className="absolute -bottom-12 left-0 right-0 text-center text-sm font-medium py-2">
-           {showUserMic ? (
-             <span className={
-               (showUserMic && isMuted)
-                 ? 'text-red-600 font-semibold' 
-                 : (isActive ? `text-${primaryColor}-600 font-semibold` : 'text-gray-500')
-             }>
-               {isMuted ? 'Microphone muted' : (isActive ? 'Speaking...' : 'Ready to speak')}
-             </span>
-           ) : (
-             <span className={isActive ? `text-${primaryColor}-600 font-semibold` : 'text-gray-500'}>
-               {isActive ? 'AI is speaking...' : 'AI is thinking'}
-             </span>
-           )}
-         </div>
+        {/* Status text */}
+        <div className="absolute -bottom-12 left-0 right-0 text-center text-sm font-medium py-2">
+          {showUserMic ? (
+            <span className={
+              isMuted 
+                ? 'text-red-600 font-semibold' 
+                : (isActive ? 'text-green-600 font-semibold' : 'text-gray-500')
+            }>
+              {isMuted ? 'Microphone muted' : (isActive ? 'Speaking...' : 'Ready to speak')}
+            </span>
+          ) : (
+            <span className={isActive ? 'text-blue-600 font-semibold' : 'text-gray-500'}>
+              {isActive ? 'AI is speaking...' : 'AI is thinking'}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

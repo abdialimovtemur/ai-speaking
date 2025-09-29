@@ -1,4 +1,5 @@
 import { TEST_STATE } from '../constants/testStates.js';
+
 class WebSocketService {
   constructor() {
     this.socket = null;
@@ -24,26 +25,22 @@ class WebSocketService {
         return;
       }
 
-      // --- THIS IS THE FIX ---
-      // When connecting to a secure ngrok URL, the scheme MUST be 'wss'
-      const wsScheme = "wss"; 
+      // Construct WebSocket URL with token as query parameter
+      const wsScheme = "wss";
       const backendUrl = '9d65191b4d76.ngrok-free.app'; // Remember to update this
-      const wsURL = `${wsScheme}://${backendUrl}/ws/speech/`;
-      // --- END FIX ---
+      const wsURL = `${wsScheme}://${backendUrl}/ws/speech/?token=${encodeURIComponent(accessToken)}`;
 
       console.log("FRONTEND LOG: Connecting to WebSocket with URL:", wsURL);
       this.socket = new WebSocket(wsURL);
 
       this.socket.onopen = async () => {
-        console.log("FRONTEND LOG: WebSocket connected, sending authentication token");
-        
-        this.socket.send(JSON.stringify({
-          type: "authenticate",
-          token: accessToken   
-        }));
+        console.log("FRONTEND LOG: WebSocket connected successfully");
         
         try {
           await this.setupAudio();
+          // Authentication is now handled via URL token, so we're immediately authenticated
+          this.isAuthenticated = true;
+          this.callbacks.onAuthSuccess?.();
           resolve();
         } catch (error) {
           reject(error);
@@ -61,13 +58,43 @@ class WebSocketService {
 
       this.socket.onclose = (event) => {
         console.log("FRONTEND LOG: WebSocket disconnected. Code:", event.code, "Reason:", event.reason);
+        
+        // Handle authentication failure
+        if (event.code === 4003) {
+          console.error("FRONTEND LOG: Authentication failed - invalid or expired token");
+          this.handleAuthFailure();
+        }
+        
         this.stopAudio();
         this.callbacks.onClose?.(event);
       };
     });
   }
 
-  // Setup audio streaming
+  // Handle authentication failure
+  handleAuthFailure() {
+    console.log("FRONTEND LOG: Handling authentication failure");
+    
+    // Clear stored tokens
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_phone');
+    
+    // Reset authentication state
+    this.isAuthenticated = false;
+    
+    // Notify callbacks
+    this.callbacks.onAuthError?.('Authentication failed. Please log in again.');
+    
+    // Redirect to login page after a short delay
+    setTimeout(() => {
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login?session_expired=true';
+      }
+    }, 2000);
+  }
+
+  // Setup audio streaming (unchanged)
   async setupAudio() {
     try {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
@@ -122,7 +149,7 @@ class WebSocketService {
     }
   }
 
-  // Handle incoming messages
+  // Handle incoming messages (updated to remove auth message handling)
   handleMessage(event) {
     if (event.data instanceof Blob) {
       // Audio response - check if it's enhancement audio or regular AI response
@@ -142,15 +169,7 @@ class WebSocketService {
       console.log("FRONTEND LOG: Received message:", data);
       
       switch (data.type) {
-        case 'auth_success':
-          console.log("FRONTEND LOG: Authentication successful");
-          this.isAuthenticated = true;
-          this.callbacks.onAuthSuccess?.();
-          break;
-        case 'auth_error':
-          console.error("FRONTEND LOG: Authentication failed:", data.message);
-          this.callbacks.onAuthError?.(data.message);
-          break;
+        // REMOVED: 'auth_success' and 'auth_error' cases since authentication is now handled via URL
         case 'user_transcript':
           this.callbacks.onUserTranscript?.(data.text);
           break;
