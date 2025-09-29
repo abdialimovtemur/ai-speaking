@@ -27,7 +27,7 @@ class WebSocketService {
 
       // Construct WebSocket URL with token as query parameter
       const wsScheme = "wss";
-      const backendUrl = '9d65191b4d76.ngrok-free.app'; // Remember to update this
+      const backendUrl = 'improvely.ai/speaking/'; // Remember to update this
       const wsURL = `${wsScheme}://${backendUrl}/ws/speech/?token=${encodeURIComponent(accessToken)}`;
 
       console.log("FRONTEND LOG: Connecting to WebSocket with URL:", wsURL);
