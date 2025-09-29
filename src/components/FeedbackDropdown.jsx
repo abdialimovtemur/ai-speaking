@@ -1,9 +1,25 @@
-import { BookOpen, Play, Square } from 'lucide-react';
-import { useState } from 'react';
+import { BookOpen, Play, Square, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import websocketService from '../services/websocketService';
 
 const FeedbackDropdown = ({ originalText, enhancements }) => {
   const [isOpen, setIsOpen] = useState(true); // Avtomatik ochiq
   const [activeBand, setActiveBand] = useState('Band 7');
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+
+  // Listen for enhancement audio responses to reset loading state
+  useEffect(() => {
+    const handleEnhancementAudio = () => {
+      setIsLoadingAudio(false);
+    };
+
+    // Add a custom event listener for enhancement audio
+    window.addEventListener('enhancementAudioReceived', handleEnhancementAudio);
+    
+    return () => {
+      window.removeEventListener('enhancementAudioReceived', handleEnhancementAudio);
+    };
+  }, []);
 
   const renderDiff = (diffData) => {
     if (!diffData || !Array.isArray(diffData)) return 'Suggestion not available.';
@@ -26,14 +42,32 @@ const FeedbackDropdown = ({ originalText, enhancements }) => {
 
   const handlePlay = (e, text) => {
     e.stopPropagation();
-    speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    speechSynthesis.speak(utterance);
+    
+    if (!websocketService.socket || websocketService.socket.readyState !== WebSocket.OPEN || !text) {
+      console.error("Socket not available or no text to play.");
+      return;
+    }
+
+    // Set loading state to provide user feedback
+    setIsLoadingAudio(true);
+
+    // Send the text to the backend to get TTS audio
+    websocketService.sendMessage({
+      type: 'get_enhancement_audio',
+      text: text
+    });
+
+    // Set a timeout to reset loading state if no response comes
+    setTimeout(() => {
+      setIsLoadingAudio(false);
+    }, 10000); // 10 second timeout
   };
 
   const handleStop = (e) => {
     e.stopPropagation();
-    speechSynthesis.cancel();
+    setIsLoadingAudio(false);
+    // Note: We can't easily stop WebSocket audio once it starts playing
+    // The audio will play to completion
   };
 
   return (
@@ -69,7 +103,7 @@ const FeedbackDropdown = ({ originalText, enhancements }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveBand(band);
-                  speechSynthesis.cancel();
+                  setIsLoadingAudio(false);
                 }}
               >
                 {band}
@@ -81,10 +115,16 @@ const FeedbackDropdown = ({ originalText, enhancements }) => {
             <p className="mb-3">{renderDiff(enhancements[activeBand]?.diff)}</p>
             <div className="flex space-x-2">
               <button
-                className="flex items-center px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                className="flex items-center px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={(e) => handlePlay(e, enhancements[activeBand]?.text)}
+                disabled={isLoadingAudio}
               >
-                <Play className="w-4 h-4 mr-1" /> Play
+                {isLoadingAudio ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4 mr-1" />
+                )}
+                {isLoadingAudio ? 'Loading...' : 'Play'}
               </button>
               <button
                 className="flex items-center px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700"

@@ -8,7 +8,7 @@ import FeedbackDropdown from '../components/FeedbackDropdown';
 import FinalEvaluation from '../components/FinalEvaluation';
 import ControlButtons from '../components/ControlButtons';
 import TimerDisplay from '../components/TimerDisplay';
-import { Award } from 'lucide-react';
+import { Award, Mic } from 'lucide-react';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -39,17 +39,20 @@ const HomePage = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-center mb-8">
-        <ControlButtons
-          testState={testState}
-          onStartTest={handleStartTestWithAuth}
-          onSkipTimer={handleSkipTimer}
-          onFinishPart2={handleFinishPart2}
-          onRetry={handleRetry}
-          isMuted={isMuted}
-          onToggleMute={handleToggleMute}
-        />
-      </div>
+      {/* Show ControlButtons only when test is not in initial state */}
+      {testState !== 'INITIAL' && (
+        <div className="flex justify-center mb-8">
+          <ControlButtons
+            testState={testState}
+            onStartTest={handleStartTestWithAuth}
+            onSkipTimer={handleSkipTimer}
+            onFinishPart2={handleFinishPart2}
+            onRetry={handleRetry}
+            isMuted={isMuted}
+            onToggleMute={handleToggleMute}
+          />
+        </div>
+      )}
 
       {finalEvaluation ? (
         // Full width layout for final evaluation
@@ -90,6 +93,32 @@ const HomePage = () => {
                 <ConversationLog logEntries={log} />
               </div>
             )}
+          </div>
+        </div>
+      ) : testState === 'INITIAL' ? (
+        // Simple welcome section when test hasn't started
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+          {/* Simple info */}
+          <div className="text-center max-w-2xl">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              AI-Powered IELTS Speaking Test
+            </h1>
+            <p className="text-lg text-gray-600 mb-2">
+              Practice your IELTS Speaking skills with our advanced AI examiner
+            </p>
+          </div>
+
+          {/* Enhanced Start Button */}
+          <div className="mt-8">
+            <button
+              onClick={handleStartTestWithAuth}
+              className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center transform hover:scale-105 active:scale-95"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+              <Mic className="w-8 h-8 mr-3 relative z-10" />
+              <span className="text-xl relative z-10">Start IELTS Test</span>
+              <div className="absolute inset-0 rounded-2xl bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            </button>
           </div>
         </div>
       ) : (

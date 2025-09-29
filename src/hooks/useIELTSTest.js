@@ -10,6 +10,7 @@ export const useIELTSTest = () => {
   const [timer, setTimer] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [examStatus, setExamStatus] = useState('initial'); // 'initial', 'running', 'finished'
 
   const timerToStartOnFinish = useRef(null);
   const testStateRef = useRef(testState);
@@ -38,6 +39,7 @@ export const useIELTSTest = () => {
         onAuthSuccess: () => {
           setIsAuthenticated(true);
           setTestState(TEST_STATE.WAITING_FOR_AI);
+          setExamStatus('running');
         },
         onAuthError: (message) => {
           console.error("FRONTEND LOG: Authentication failed:", message);
@@ -57,7 +59,8 @@ export const useIELTSTest = () => {
         onFinalEvaluation: (evaluation) => {
           setFinalEvaluation(evaluation);
           setTestState(TEST_STATE.ENDED);
-          websocketService.disconnect();
+          setExamStatus('finished');
+          // Don't disconnect - keep WebSocket alive for potential restart
         },
         onTimerUpdate: (data) => {
           setTimer(data.remaining);
@@ -85,6 +88,12 @@ export const useIELTSTest = () => {
               setTestState(TEST_STATE.READY_TO_LISTEN);
             }
           };
+        },
+        onEnhancementAudioResponse: (audio) => {
+          // Play enhancement audio without changing test state
+          audio.play();
+          // Dispatch custom event to notify FeedbackDropdown components
+          window.dispatchEvent(new CustomEvent('enhancementAudioReceived'));
         },
         onError: (error) => {
           console.error("FRONTEND LOG: WebSocket Error:", error);
@@ -124,8 +133,26 @@ export const useIELTSTest = () => {
     setIsMuted(newMuteState);
   }, []);
 
+  const handleRestart = useCallback(() => {
+    if (websocketService.socket && websocketService.socket.readyState === WebSocket.OPEN) {
+      websocketService.sendMessage({ type: 'restart_exam' });
+      // Reset all relevant states
+      setExamStatus('running');
+      setFinalEvaluation(null);
+      setFeedback([]);
+      setLog([]);
+      setTestState(TEST_STATE.WAITING_FOR_AI);
+      setTimer(null);
+      timerToStartOnFinish.current = null;
+    } else {
+      // If WebSocket is not connected, restart the entire test
+      handleStartTest();
+    }
+  }, [handleStartTest]);
+
   useEffect(() => {
     return () => {
+      // Only disconnect when component truly unmounts (user navigates away)
       websocketService.disconnect();
     };
   }, []);
@@ -139,10 +166,12 @@ export const useIELTSTest = () => {
     isStreaming: websocketService.isStreaming,
     isAuthenticated,
     isMuted,
+    examStatus,
     handleStartTest,
     handleSkipTimer,
     handleFinishPart2,
     handleRetry,
-    handleToggleMute
+    handleToggleMute,
+    handleRestart
   };
 };

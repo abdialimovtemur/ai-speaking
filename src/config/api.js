@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://6d59b4312cb0.ngrok-free.app';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://4639572b7d03.ngrok-free.app';
 
 // API Endpoints
 export const API_ENDPOINTS = {

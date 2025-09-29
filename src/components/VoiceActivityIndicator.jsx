@@ -14,7 +14,7 @@ const VoiceActivityIndicator = ({ testState, isStreaming, isMuted }) => {
   
   // Determine if user is speaking (streaming) or AI is speaking
   const isUserSpeaking = isStreaming && (testState === 'READY_TO_LISTEN' || testState === 'SPEAK_TIME');
-  const isAISpeaking = testState === 'WAITING_FOR_AI' && !isMuted;
+  const isAISpeaking = testState === 'WAITING_FOR_AI';
   
   // Show user mic when user should be speaking (including SPEAK_TIME even if not streaming yet)
   const showUserMic = isUserSpeaking || testState === 'SPEAK_TIME' || (isMuted && (testState === 'READY_TO_LISTEN' || testState === 'SPEAK_TIME'));

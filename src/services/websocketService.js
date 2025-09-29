@@ -9,6 +9,7 @@ class WebSocketService {
     this.stream = null;
     this.audioWorkletNode = null;
     this.callbacks = {};
+    this.isExpectingEnhancementAudio = false;
   }
 
   setCallbacks(callbacks) {
@@ -26,7 +27,7 @@ class WebSocketService {
       // --- THIS IS THE FIX ---
       // When connecting to a secure ngrok URL, the scheme MUST be 'wss'
       const wsScheme = "wss"; 
-      const backendUrl = 'f9ac2c4e31a6.ngrok-free.app'; // Remember to update this
+      const backendUrl = '4639572b7d03.ngrok-free.app'; // Remember to update this
       const wsURL = `${wsScheme}://${backendUrl}/ws/speech/`;
       // --- END FIX ---
 
@@ -124,9 +125,17 @@ class WebSocketService {
   // Handle incoming messages
   handleMessage(event) {
     if (event.data instanceof Blob) {
-      // Audio response
-      const audio = new Audio(URL.createObjectURL(event.data));
-      this.callbacks.onAudioResponse?.(audio);
+      // Audio response - check if it's enhancement audio or regular AI response
+      if (this.isExpectingEnhancementAudio) {
+        // This is enhancement audio
+        const audio = new Audio(URL.createObjectURL(event.data));
+        this.callbacks.onEnhancementAudioResponse?.(audio);
+        this.isExpectingEnhancementAudio = false;
+      } else {
+        // This is regular AI response audio
+        const audio = new Audio(URL.createObjectURL(event.data));
+        this.callbacks.onAudioResponse?.(audio);
+      }
     } else {
       // JSON data
       const data = JSON.parse(event.data);
@@ -162,6 +171,10 @@ class WebSocketService {
           break;
         case 'force_stop_streaming':
           this.isStreaming = false;
+          break;
+        case 'enhancement_audio_start':
+          // This message tells us the NEXT blob of audio is for an enhancement
+          this.isExpectingEnhancementAudio = true;
           break;
         default:
           console.log("FRONTEND LOG: Unknown message type:", data.type);
