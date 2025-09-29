@@ -27,7 +27,7 @@ class WebSocketService {
       // --- THIS IS THE FIX ---
       // When connecting to a secure ngrok URL, the scheme MUST be 'wss'
       const wsScheme = "wss"; 
-      const backendUrl = '4639572b7d03.ngrok-free.app'; // Remember to update this
+      const backendUrl = '9d65191b4d76.ngrok-free.app'; // Remember to update this
       const wsURL = `${wsScheme}://${backendUrl}/ws/speech/`;
       // --- END FIX ---
 
@@ -39,7 +39,7 @@ class WebSocketService {
         
         this.socket.send(JSON.stringify({
           type: "authenticate",
-          token: accessToken
+          token: accessToken   
         }));
         
         try {
