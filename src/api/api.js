@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://improvely.ai/speaking/';
+const API_BASE_URL = 'https://4d8abb5c17ec.ngrok-free.app/';
 
 // Cookie ichidan token olish helper
 const getCookie = (name) => {
