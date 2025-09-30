@@ -59,7 +59,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
           }`}
         >
           {isMuted ? <VolumeX className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
-          {isMuted ? 'Unmuteee' : 'Muteeeee'}
+          {isMuted ? 'Unmute' : 'Mute'}
         </button>
         <button
           onClick={onFinishPart2}
@@ -83,7 +83,7 @@ const ControlButtons = ({ testState, onStartTest, onSkipTimer, onFinishPart2, on
         }`}
       >
         {isMuted ? <VolumeX className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
-        {isMuted ? 'Unmuteeee' : 'Muteeee'}
+        {isMuted ? 'Unmute' : 'Mute'}
       </button>
     );
   }
