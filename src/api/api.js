@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://4d8abb5c17ec.ngrok-free.app/';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 // Cookie ichidan token olish helper
 const getCookie = (name) => {
   const value = `; ${document.cookie}`;
@@ -16,7 +15,7 @@ const getToken = () => {
 };
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

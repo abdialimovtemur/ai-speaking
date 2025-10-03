@@ -25,11 +25,10 @@ class WebSocketService {
         return;
       }
 
-      // Construct WebSocket URL with token as query parameter
-      const wsScheme = "wss";
-      const backendUrl = '4d8abb5c17ec.ngrok-free.app'; // Remember to update this
-      const wsURL = `${wsScheme}://${backendUrl}/ws/speech/?token=${encodeURIComponent(accessToken)}`;
-
+      const wsScheme = import.meta.env.VITE_WEBSOCKET_SCHEME || 'ws';
+      const backendDomain = import.meta.env.VITE_WEBSOCKET_DOMAIN || 'localhost:8000';
+      
+      const wsURL = `${wsScheme}://${backendDomain}/ws/speech/?token=${encodeURIComponent(accessToken)}`;
       console.log("FRONTEND LOG: Connecting to WebSocket with URL:", wsURL);
       this.socket = new WebSocket(wsURL);
 
@@ -38,7 +37,6 @@ class WebSocketService {
         
         try {
           await this.setupAudio();
-          // Authentication is now handled via URL token, so we're immediately authenticated
           this.isAuthenticated = true;
           this.callbacks.onAuthSuccess?.();
           resolve();
