@@ -4,14 +4,14 @@ import { API_ENDPOINTS } from '../../config/api.js';
 export const authMutations = {
   sendCode: async (phoneNumber) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append('phone_number', phoneNumber);
+      // CHANGE 1: Create a simple JavaScript object
+      const payload = {
+        phone_number: phoneNumber,
+      };
       
-      const response = await api.post(API_ENDPOINTS.LOGIN, formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+      // CHANGE 2: Send the object directly. Axios will handle the JSON conversion.
+      // We no longer need to set the Content-Type header manually.
+      const response = await api.post(API_ENDPOINTS.LOGIN, payload);
       
       return {
         success: true,
@@ -27,15 +27,14 @@ export const authMutations = {
 
   verifyCode: async (phoneNumber, code) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append('phone_number', phoneNumber);
-      formData.append('code', code);
+      // CHANGE 3: Create a simple JavaScript object here too
+      const payload = {
+        phone_number: phoneNumber,
+        code: code,
+      };
       
-      const response = await api.post(API_ENDPOINTS.VERIFY_CODE, formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+      // CHANGE 4: Send the object directly
+      const response = await api.post(API_ENDPOINTS.VERIFY_CODE, payload);
       
       if (response.data.access && response.data.refresh) {
         localStorage.setItem('access_token', response.data.access);
