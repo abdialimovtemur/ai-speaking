@@ -8,6 +8,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 
 // These endpoints are correct. They do NOT contain /api/.
 export const API_ENDPOINTS = {
+
   LOGIN: '/auth/send-code/',
   VERIFY_CODE: '/auth/verify-code/',
   REFRESH_TOKEN: '/auth/refresh/',

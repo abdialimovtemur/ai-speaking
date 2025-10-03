@@ -1,14 +1,13 @@
 import api from '../api.js';
+import { API_ENDPOINTS } from './config.js';
 
-// Auth Mutations - Only essential ones
 export const authMutations = {
-  // Send verification code mutation
   sendCode: async (phoneNumber) => {
     try {
       const formData = new URLSearchParams();
       formData.append('phone_number', phoneNumber);
       
-      const response = await api.post('/auth/api/send-code/', formData, {
+      const response = await api.post(API_ENDPOINTS.LOGIN, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -26,20 +25,18 @@ export const authMutations = {
     }
   },
 
-  // Verify code mutation
   verifyCode: async (phoneNumber, code) => {
     try {
       const formData = new URLSearchParams();
       formData.append('phone_number', phoneNumber);
       formData.append('code', code);
       
-      const response = await api.post('/auth/api/verify-code/', formData, {
+      const response = await api.post(API_ENDPOINTS.VERIFY_CODE, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
       
-      // Store tokens in localStorage
       if (response.data.access && response.data.refresh) {
         localStorage.setItem('access_token', response.data.access);
         localStorage.setItem('refresh_token', response.data.refresh);
@@ -60,14 +57,12 @@ export const authMutations = {
     }
   },
 
-  // Logout mutation
   logout: async () => {
     try {
-      await api.post('/auth/logout/');
+      await api.post(API_ENDPOINTS.LOGOUT);
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
-      // Clear tokens from localStorage
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user_phone');
