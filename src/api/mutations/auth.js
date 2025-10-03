@@ -1,5 +1,5 @@
 import api from '../api.js';
-import { API_ENDPOINTS } from './config.js';
+import { API_ENDPOINTS } from '../../config/api.js';
 
 export const authMutations = {
   sendCode: async (phoneNumber) => {
